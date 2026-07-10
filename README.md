@@ -16,10 +16,7 @@ guard `git commit`; this Action guards the real trust boundary — the merge.
 Zero dependencies beyond bash + python3 (present on every GitHub runner). No
 node, no npm, nothing to install.
 
-<!-- SCREENSHOT SLOT: replace with the real dogfood GIF/PNG of refute failing a
-     Casper PR (job summary + pre-filled Evidence template). Record by running
-     this Action on an actual PR, then:
-     ![refute failing a PR with a pre-filled Evidence template](docs/refute-demo.png) -->
+<img src="https://github.com/ronniepinnell/refute-action/releases/download/v0.1.0/refute-action-pr.gif" width="820" alt="refute-action failing a PR whose commit claims done with no evidence, with a pre-filled Evidence template">
 
 ## Usage
 
