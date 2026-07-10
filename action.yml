@@ -1,0 +1,68 @@
+name: 'refute'
+description: >-
+  PR-level claim-evidence enforcement. Fails the check when the PR body or its
+  commit messages claim completion (fixed/done/works/...) without an
+  "Evidence: <command + result>" line or a test-file diff.
+author: 'Ronnie Pinnell'
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  claim-words:
+    description: >-
+      Comma-separated override of the completion-claim word list. Default
+      matches hooks/judgment/claim-evidence.sh:
+      fixed,fixes,fix,done,works,working,complete,completed,resolved,resolves
+    required: false
+    default: ''
+  test-pattern:
+    description: >-
+      Python regex identifying test files in the PR diff (a test diff counts
+      as evidence). Default matches the local hook.
+    required: false
+    default: ''
+  scan-commits:
+    description: 'Also scan every commit message in the PR (true/false).'
+    required: false
+    default: 'true'
+  scan-reviews:
+    description: >-
+      When true, also fetch PR review bodies (via gh api + GITHUB_TOKEN;
+      silently skipped when either is unavailable) and, if the PR's claims
+      lack evidence, add a gentle job-summary note about "LGTM"/"looks good"
+      approvals. Annotation only — never changes the check's pass/fail.
+    required: false
+    default: 'false'
+  ledger:
+    description: >-
+      When true, append REFUTE verdict lines (verdict grammar) to a
+      commit-less artifact named refute-ledger containing
+      .claude/verdicts.log fragments to merge into your ledger.
+    required: false
+    default: 'false'
+
+outputs:
+  verdict:
+    description: 'CONFIRMED | UNVERIFIED | NO-CLAIMS'
+    value: ${{ steps.refute.outputs.verdict }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: refute
+      shell: bash
+      env:
+        REFUTE_CLAIM_WORDS: ${{ inputs.claim-words }}
+        REFUTE_TEST_PATTERN: ${{ inputs.test-pattern }}
+        REFUTE_SCAN_COMMITS: ${{ inputs.scan-commits }}
+        REFUTE_SCAN_REVIEWS: ${{ inputs.scan-reviews }}
+        REFUTE_LEDGER: ${{ inputs.ledger }}
+      run: '"${GITHUB_ACTION_PATH}/entrypoint.sh"'
+    - name: Upload ledger fragment (commit-less)
+      if: ${{ inputs.ledger == 'true' && always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: refute-ledger
+        path: ${{ runner.temp }}/refute-ledger/verdicts.log
+        if-no-files-found: ignore

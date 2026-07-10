@@ -1,0 +1,20 @@
+# Self-CI: run the Action's own test matrix so this repo stays green.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bash -n all shell
+        run: |
+          for f in entrypoint.sh test/run-tests.sh; do bash -n "$f"; done
+      - name: run test matrix
+        run: ./test/run-tests.sh

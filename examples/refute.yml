@@ -1,0 +1,26 @@
+# Ready-to-copy consumer workflow.
+# Copy into .github/workflows/refute.yml of any repo you want guarded.
+name: refute
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  refute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # full history so all PR commits are scanned
+      - id: refute
+        uses: ronniepinnell/refute-action@v1
+        with:
+          scan-commits: true        # scan commit messages, not just the PR body
+          ledger: true              # upload verdict lines as an artifact
+          # Helpful mode (pre-filled Evidence: template) is always on.
+      - name: Show verdict
+        if: always()
+        run: echo "refute verdict = ${{ steps.refute.outputs.verdict }}"

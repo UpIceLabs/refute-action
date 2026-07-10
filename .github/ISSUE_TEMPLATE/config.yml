@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Casper (local-hooks companion)
+    url: https://github.com/ronniepinnell/casper
+    about: For git-commit-time claim-evidence hooks and the judgment toolkit.
